@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: comprehend-processor-deployment
+  labels:
+    app: comprehend-processor
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: comprehend-processor
+  template:
+    metadata:
+      labels:
+        app: comprehend-processor
+    spec:
+      containers:
+      - name: comprehend-processor
+        image: pala3105/pala3105-comprehend-nlp:latest
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "500m"
+            memory: "256Mi"
+        envFrom:
+        - configMapRef:
+            name: comprehend-processor-config
+      restartPolicy: OnFailure

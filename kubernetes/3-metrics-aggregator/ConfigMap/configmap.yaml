@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: metrics-aggregator-config
+data:
+  INPUT_PATH: "/data/comprehend_output.json"
+  OUTPUT_PATH: "/data/metrics_output.json"
+  TOP_KEYPHRASES: "5"
+  S3_INPUT_BUCKET: "comprehend-pala3105-2026"                # Download input from here
+  S3_INPUT_KEY: "comprehend-output/comprehend_output.json"   # Download this file
+  S3_BUCKET: "comprehend-pala3105-2026"                      # Where to upload output
+  S3_PREFIX: "processed-output/"                             # Where to upload output

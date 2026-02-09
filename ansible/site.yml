@@ -1,0 +1,63 @@
+---
+- name: Setup Kubernetes worker for microservices pipeline
+  hosts: all
+  become: yes
+  vars:
+    repo_url: "https://github.com/pala3232/review-places-k8s/"
+    repo_dest: "/opt/k8s-pipeline"
+    manifests_dir: "kubernetes"
+  tasks:
+    - name: Install required packages
+      apt:
+        name:
+          - git
+          - docker.io
+          - python3-pip
+        state: present
+        update_cache: yes
+      when: ansible_os_family == 'Debian'
+
+    - name: Install kubectl
+      shell: |
+        curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
+        chmod +x kubectl
+        mv kubectl /usr/local/bin/
+      args:
+        creates: /usr/local/bin/kubectl
+
+    - name: Install AWS CLI
+      pip:
+        name: awscli
+        executable: pip3
+
+    - name: Clone pipeline repository
+      git:
+        repo: "{{ repo_url }}"
+        dest: "{{ repo_dest }}"
+        version: main
+        force: yes
+
+    - name: Apply Kubernetes ConfigMaps
+      shell: |
+        kubectl apply -f {{ repo_dest }}/{{ manifests_dir }}/1-Places-Fetcher/ConfigMap/configmap.yaml
+        kubectl apply -f {{ repo_dest }}/{{ manifests_dir }}/2-comprehend-processor/ConfigMap/configmap.yaml
+        kubectl apply -f {{ repo_dest }}/{{ manifests_dir }}/3-metrics-aggregator/ConfigMap/configmap.yaml
+      args:
+        executable: /bin/bash
+
+    - name: Apply Kubernetes Deployments
+      shell: |
+        kubectl apply -f {{ repo_dest }}/{{ manifests_dir }}/1-Places-Fetcher/Deployment/deployment.yaml
+        kubectl apply -f {{ repo_dest }}/{{ manifests_dir }}/2-comprehend-processor/Deployment/deployment.yaml
+        kubectl apply -f {{ repo_dest }}/{{ manifests_dir }}/3-metrics-aggregator/Deployment/deployment.yaml
+      args:
+        executable: /bin/bash
+
+    - name: Show running pods
+      shell: kubectl get pods -o wide
+      register: pod_output
+      changed_when: false
+
+    - name: Print pod status
+      debug:
+        var: pod_output.stdout

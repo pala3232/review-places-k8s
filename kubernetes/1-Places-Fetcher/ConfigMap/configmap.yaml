@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fetch-reviews-config
+data:
+  GOOGLE_PLACES_API_KEY: "googleapi"
+  OUTPUT_DIR: "/data"
+  PLACES_LIMIT: "20"
+  RATE_LIMIT_SEC: "1.0"
+  S3_BUCKET: "comprehend-pala3105-2026"           # Where to upload outputs
+  S3_PREFIX: "results/"                           # Where to upload outputs
+  S3_SEARCH_KEY: "search/requests/query.txt"      # Where to read search query (frontend-driven)
+  S3_PROCESSED_PREFIX: "search/processed/"        # Where to move processed queries

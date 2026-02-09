@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: places-fetcher-deployment
+  labels:
+    app: places-fetcher
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: places-fetcher
+  template:
+    metadata:
+      labels:
+        app: places-fetcher
+    spec:
+      containers:
+      - name: places-fetcher
+        image: pala3105/pala3105-places-fetcher:latest
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "500m"
+            memory: "256Mi"
+        envFrom:
+        - configMapRef:
+            name: fetch-reviews-config
+      restartPolicy: OnFailure
